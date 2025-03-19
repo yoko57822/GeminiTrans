@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini 번역기</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Gemini 2.0 번역기</h1>
+        
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group mb-3">
+                    <label for="sourceLang">원본 언어:</label>
+                    <select id="sourceLang" class="form-select">
+                        <option value="auto">자동 감지</option>
+                        <option value="ko">한국어</option>
+                        <option value="en">영어</option>
+                        <option value="ja">일본어</option>
+                        <option value="zh">중국어</option>
+                        <option value="fr">프랑스어</option>
+                        <option value="de">독일어</option>
+                        <option value="es">스페인어</option>
+                        <option value="ru">러시아어</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <textarea id="sourceText" class="form-control" rows="10" placeholder="번역할 텍스트를 입력하세요..."></textarea>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-3">
+                    <button id="clearBtn" class="btn btn-secondary">지우기</button>
+                    <button id="translateBtn" class="btn btn-primary">번역하기</button>
+                </div>
+            </div>
+            
+            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                <button id="swapBtn" class="btn btn-outline-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="form-group mb-3">
+                    <label for="targetLang">목표 언어:</label>
+                    <select id="targetLang" class="form-select">
+                        <option value="ko">한국어</option>
+                        <option value="en" selected>영어</option>
+                        <option value="ja">일본어</option>
+                        <option value="zh">중국어</option>
+                        <option value="fr">프랑스어</option>
+                        <option value="de">독일어</option>
+                        <option value="es">스페인어</option>
+                        <option value="ru">러시아어</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <textarea id="targetText" class="form-control" rows="10" placeholder="번역 결과..." readonly></textarea>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-3">
+                    <button id="enhanceBtn" class="btn btn-success" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16">
+                            <path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707a.5.5 0 0 0-.207-.672M7.828 4.293a.5.5 0 0 0-.707 0L4 7.414V8a1 1 0 0 0 1 1h.586l3.121-3.121a.5.5 0 0 0 0-.707m.707 10.293a.5.5 0 0 0 0-.707l-3.121-3.121H5a1 1 0 0 0-1 1v.586l3.121 3.121a.5.5 0 0 0 .707 0Zm-9.2-8.329a.5.5 0 0 0-.034.78A7.98 7.98 0 0 0 8 16a8 8 0 0 0 7.999-8a8 8 0 0 0-15.462-2.329.5.5 0 0 0 .034.781Zm10.043-8.396a.5.5 0 0 0-.58.404l-.333 1.666a.5.5 0 0 0 .404.58.5.5 0 0 0 .58-.404l.333-1.666a.5.5 0 0 0-.404-.58Zm1.115 3.466a.5.5 0 0 0 .375.59l1.666.333a.5.5 0 0 0 .59-.374.5.5 0 0 0-.374-.591l-1.666-.333a.5.5 0 0 0-.591.375Z"/>
+                        </svg>
+                        프롬프트 변형
+                    </button>
+                    <button id="copyBtn" class="btn btn-outline-primary">복사하기</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loading" class="text-center mt-3 d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">로딩 중...</span>
+            </div>
+            <p>번역 중...</p>
+        </div>
+        
+        <div id="enhancing" class="text-center mt-3 d-none">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">로딩 중...</span>
+            </div>
+            <p>프롬프트 변형 중...</p>
+        </div>
+        
+        <div id="errorMsg" class="alert alert-danger mt-3 d-none"></div>
+    </div>
+
+    <footer class="text-center mt-5 mb-4">
+        <p>Powered by Gemini 2.0 Flash & OpenRouter API</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 
