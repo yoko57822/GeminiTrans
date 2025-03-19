@@ -27,5 +27,3 @@ OpenRouter API 키는 [OpenRouter 웹사이트](https://openrouter.ai/)에서 �
 ```bash
 python app.py
 ```
-
-웹 브라우저에서 `http://127.0.0.1:57822/`에 접속
